@@ -19,8 +19,6 @@ function Header() {
                         authorization: checkLogin.accessToken
                     }
                 })
-                console.log("response in header: ", response)
-
                 if (response.status === 200) {
                     dispatch(actions.setUsername(response.data.fullname));
                 }

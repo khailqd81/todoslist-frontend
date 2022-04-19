@@ -39,6 +39,7 @@ function Task() {
     const [tasks, setTasks] = useState([]);
     const [isBlock, setIsBlock] = useState(false);
     const [modifyContent, setModifyContent] = useState("");
+    const [markImportant, setMarkImportant] = useState(false);
     const [deadline, setDeadline] = useState(new Date());
     const handleDeadlineChange = (date) => {
         console.log(date)
@@ -65,6 +66,7 @@ function Task() {
         }
         getAllTask();
     }, [navigate])
+
     const handleSave = (e, task_id) => {
         e.target.parentNode.parentNode.previousElementSibling.style.display = "flex"
         e.target.parentNode.parentNode.style.display = "none"
@@ -84,6 +86,90 @@ function Task() {
         setIsBlock(false);
     }
 
+    const handleAddTask = async (e) => {
+        if (modifyContent.length === 0 || modifyContent.trim().length === 0) {
+            return;
+        }
+        e.target.disabled = true;
+        try {
+            const checkLogin = await isLogin();
+            if (!checkLogin.login_state) {
+                e.target.disabled = false;
+                navigate("/")
+                return
+            }
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_API}/task/add`, {
+                task: {
+                    content: modifyContent,
+                    deadline: deadline,
+                    important: markImportant
+                }
+            }, {
+                headers: {
+                    authorization: checkLogin.accessToken
+                }
+            })
+            if (response.status === 200 && response.data) {
+                console.log(response.data)
+                setTasks(prev => {
+                    return [...prev, response.data];
+                })
+            }
+            setIsBlock(false)
+            setModifyContent("");
+            setDeadline(new Date());
+            setMarkImportant(false);
+            e.target.parentNode.parentNode.style.display = "none"
+            e.target.parentNode.parentNode.previousElementSibling.style.display = "flex"
+        } catch (error) {
+            console.log(error);
+        }
+        e.target.disabled = false;
+    }
+
+    const handleUpdateTask = async (e, task, index) => {
+        if (task.content.length === 0 || task.content.trim().length === 0) {
+            return;
+        }
+        e.target.disabled = true;
+        try {
+            const checkLogin = await isLogin();
+            if (!checkLogin.login_state) {
+                e.target.disabled = false;
+                navigate("/")
+                return
+            }
+            console.log("pass login")
+            const response = await axios.patch(`${process.env.REACT_APP_BACKEND_API}/task/update`, {
+                task: {
+                    task_id: task.task_id,
+                    content: task.content,
+                    deadline: task.deadline,
+                    important: !task.important,
+                    is_finish: false,
+                    is_deleted: false
+                }
+            }, {
+                headers: {
+                    authorization: checkLogin.accessToken
+                }
+            })
+            if (response.status === 200 && response.data) {
+                console.log(response.data)
+                let modifyTasks = [...tasks];
+                modifyTasks[index] = response.data;
+                console.log(modifyTasks)
+                setTasks(modifyTasks)
+            }
+            setIsBlock(false)
+            setModifyContent("");
+            setDeadline(new Date());
+            setMarkImportant(false);
+        } catch (error) {
+            console.log(error);
+        }
+        e.target.disabled = false;
+    }
     return (
         <div className="max-w-screen-xl flex mx-auto py-8 min-h-[400px]">
             <ul className="basis-1/4 pr-8">
@@ -105,7 +191,7 @@ function Task() {
                 {tasks.length !== 0
                     ?
                     <ul className='w-full'>
-                        {tasks.map(task => {
+                        {tasks.map((task, index) => {
                             return (
                                 <li
                                     key={task.task_id}
@@ -134,11 +220,19 @@ function Task() {
                                         </div>
                                         {task.important
                                             ?
-                                            <span className="ml-auto text-amber-400 hover:text-amber-200 cursor-pointer">
+                                            <span
+                                                className="ml-auto text-amber-400 hover:text-amber-200 cursor-pointer"
+                                                onClick={(e) => {
+                                                    handleUpdateTask(e, task, index);
+                                                }}>
                                                 <FaStar size={20} />
                                             </span>
                                             :
-                                            <span className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer">
+                                            <span
+                                                className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer"
+                                                onClick={(e) => {
+                                                    handleUpdateTask(e, task, index);
+                                                }}>
                                                 <FaRegStar size={20} />
                                             </span>}
 
@@ -167,6 +261,12 @@ function Task() {
                                             <MyDatePicker deadline={new Date(deadline)} onDeadlineChange={handleDeadlineChange} />
                                             <button
                                                 className='min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'
+                                                onClick={(e, index) => {
+                                                    setModifyContent(task.content);
+                                                    setDeadline(task.deadline);
+                                                    setMarkImportant(!task.important);
+                                                    handleUpdateTask(e, index);
+                                                }}
                                             >
                                                 Mark Important
                                             </button>
@@ -226,7 +326,7 @@ function Task() {
                         Finish todolist
                     </li> */}
                     </ul>
-                    : <div>Add task to your day</div>}
+                    : <div className="py-4">Add task to your day</div>}
 
                 <div className="group flex px-4 py-4 items-center cursor-pointer"
                     onClick={e => {
@@ -239,8 +339,8 @@ function Task() {
                         e.target.parentNode.nextElementSibling.style.display = "block"
                         e.target.parentNode.nextElementSibling.firstChild.focus()
                         setIsBlock(true);
-                        // setModifyContent(task.content);
-                        // setDeadline(task.deadline);
+                        setModifyContent("");
+                        setDeadline(new Date());
                     }}
                 >
                     <span className="group-hover:text-white group-hover:bg-red-500 rounded-full mr-2 text-blue-600">
@@ -266,16 +366,23 @@ function Task() {
 
                         <MyDatePicker deadline={new Date(deadline)} onDeadlineChange={handleDeadlineChange} />
                         <button
-                            className='min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'
+                            className={
+                                markImportant
+                                    ? 'min-w-[150px] rounded bg-red-500 text-white px-2 py-1'
+                                    : 'min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'}
+                            onClick={e => {
+
+                                setMarkImportant(!markImportant);
+                            }}
                         >
                             Mark Important
                         </button>
                     </div>
                     <div className='flex self-start mt-2'>
                         <button
-                            className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4'
+                            className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4 disabled:bg-blue-300'
                             onClick={(e) => {
-                                // handleSave(e, task.task_id);
+                                handleAddTask(e);
                             }}
                         >
                             Add task
