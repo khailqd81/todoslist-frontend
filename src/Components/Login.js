@@ -37,7 +37,7 @@ import { useState } from "react"
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore, actions } from "../store";
-import { setLogin } from "../store/actions";
+import { setLogin, setUsername } from "../store/actions";
 // import {useDispatch} from "react-redux"
 // import {setLogin, setRole} from "../store/features/account/accountSlice"
 // import {setCategory} from "../store/features/category/categorySlice"
@@ -112,7 +112,8 @@ function Login({ onClick }) {
                         const data = response.data;
                         localStorage.setItem("accessToken", data.accessToken);
                         dispatch(setLogin(true))
-                        navigate("/");
+                        dispatch(setUsername(data.fullname))
+                        navigate("/tasks");
                     }
                     else {
                         setMessage(response.data.message)

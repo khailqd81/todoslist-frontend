@@ -1,10 +1,14 @@
-import { useState } from "react"
+import axios from "axios"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { BiCalendar } from "react-icons/bi"
-import { BsCheck, BsCalendarCheck, BsCheckLg } from "react-icons/bs"
+import { BsCheck, BsCalendarCheck } from "react-icons/bs"
 import { AiOutlinePlus } from "react-icons/ai"
 import { FiStar } from "react-icons/fi"
 import { FaRegStar, FaStar } from "react-icons/fa"
+
 import MyDatePicker from "./MyDatePicker"
+import isLogin from "../utils/isLogin"
 var taskDb = [
     {
         task_id: 1,
@@ -32,7 +36,7 @@ var taskDb = [
     },
 ]
 function Task() {
-    const [tasks, setTasks] = useState(taskDb);
+    const [tasks, setTasks] = useState([]);
     const [isBlock, setIsBlock] = useState(false);
     const [modifyContent, setModifyContent] = useState("");
     const [deadline, setDeadline] = useState(new Date());
@@ -40,7 +44,27 @@ function Task() {
         console.log(date)
         setDeadline(date)
     }
-
+    const navigate = useNavigate();
+    useEffect(() => {
+        async function getAllTask() {
+            const checkLogin = await isLogin();
+            if (!checkLogin.login_state) {
+                navigate("/login");
+                return;
+            }
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_API}/task`, {
+                headers: {
+                    authorization: checkLogin.accessToken
+                }
+            })
+            if (response.status === 200) {
+                setTasks(response.data);
+            } else {
+                setTasks([]);
+            }
+        }
+        getAllTask();
+    }, [navigate])
     const handleSave = (e, task_id) => {
         e.target.parentNode.parentNode.previousElementSibling.style.display = "flex"
         e.target.parentNode.parentNode.style.display = "none"
@@ -109,7 +133,7 @@ function Task() {
                                             {task.content}
                                         </div>
                                         {task.important
-                                            ? 
+                                            ?
                                             <span className="ml-auto text-amber-400 hover:text-amber-200 cursor-pointer">
                                                 <FaStar size={20} />
                                             </span>
@@ -204,13 +228,68 @@ function Task() {
                     </ul>
                     : <div>Add task to your day</div>}
 
-                <div className="group flex px-4 py-4 items-center cursor-pointer">
+                <div className="group flex px-4 py-4 items-center cursor-pointer"
+                    onClick={e => {
+                        if (isBlock) {
+                            return;
+                        }
+                        console.log("textarea height: ", e.target.offsetHeight)
+                        e.target.parentNode.nextElementSibling.firstChild.style.height = e.target.offsetHeight + 16 + "px"
+                        e.target.parentNode.style.display = "none"
+                        e.target.parentNode.nextElementSibling.style.display = "block"
+                        e.target.parentNode.nextElementSibling.firstChild.focus()
+                        setIsBlock(true);
+                        // setModifyContent(task.content);
+                        // setDeadline(task.deadline);
+                    }}
+                >
                     <span className="group-hover:text-white group-hover:bg-red-500 rounded-full mr-2 text-blue-600">
                         <AiOutlinePlus size={25} />
                     </span>
                     <span className='group-hover:text-red-500 text-gray-600'>Add task</span>
-                </div>
 
+                </div>
+                <div className="hidden flex flex-col items-center text-left border-b px-4 py-4 cursor-pointer outline-none w-full">
+                    <textarea
+                        className="block resize-none overflow-hidden bg-blue-50 text-left outline-none w-full border border-blue-400 rounded px-4 py-2"
+                        value={modifyContent}
+                        onInput={e => {
+                            // set autoheight for textarea
+                            e.target.style.height = "auto"
+                            e.target.style.height = (e.target.scrollHeight) + "px";
+                        }}
+                        onChange={e => {
+                            setModifyContent(e.target.value)
+                        }}
+                    ></textarea>
+                    <div className='flex justify-between mt-2 w-full'>
+
+                        <MyDatePicker deadline={new Date(deadline)} onDeadlineChange={handleDeadlineChange} />
+                        <button
+                            className='min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'
+                        >
+                            Mark Important
+                        </button>
+                    </div>
+                    <div className='flex self-start mt-2'>
+                        <button
+                            className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4'
+                            onClick={(e) => {
+                                // handleSave(e, task.task_id);
+                            }}
+                        >
+                            Add task
+                        </button>
+                        <button
+                            className='rounded bg-gray-600 hover:bg-gray-500 text-white p-2'
+                            onClick={e => {
+                                handleCancel(e)
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
             </div>
         </div >
     )

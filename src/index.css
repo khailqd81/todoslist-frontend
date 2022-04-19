@@ -23,3 +23,13 @@ code {
 .add-task:hover span{
   color: red;
 }
+
+.dropdown:before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-color: transparent;
+}
