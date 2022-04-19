@@ -32,7 +32,7 @@ function Header() {
         if (accessToken) {
             localStorage.removeItem("accessToken");
             dispatch(actions.setLogin(false));
-            navigate("/")
+            navigate("/login")
         }
     }
     return (
