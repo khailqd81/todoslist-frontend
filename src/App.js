@@ -24,7 +24,7 @@ function App() {
   }, [dispatch, navigate])
   console.log("login state: ", state.isLogin);
   return (
-    <div className="App bg-blue-50 ">
+    <div className="App bg-blue-50">
       <Header />
       <Outlet />
       <Footer />

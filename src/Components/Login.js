@@ -32,17 +32,15 @@
 
 // export default SignIn;
 
-import { SiAzurefunctions } from "react-icons/si";
 import { useState } from "react"
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useStore, actions } from "../store";
-import { setLogin, setUsername } from "../store/actions";
 // import {useDispatch} from "react-redux"
 // import {setLogin, setRole} from "../store/features/account/accountSlice"
 // import {setCategory} from "../store/features/category/categorySlice"
-function Login({ onClick }) {
-    const [state, dispatch] = useStore();
+function Login() {
+    const [, dispatch] = useStore();
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState({
         username: "",
@@ -111,8 +109,8 @@ function Login({ onClick }) {
                     if (response.status === 200) {
                         const data = response.data;
                         localStorage.setItem("accessToken", data.accessToken);
-                        dispatch(setLogin(true))
-                        dispatch(setUsername(data.fullname))
+                        dispatch(actions.setLogin(true))
+                        dispatch(actions.setUsername(data.fullname))
                         navigate("/tasks");
                     }
                     else {
@@ -128,7 +126,7 @@ function Login({ onClick }) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="md:max-w-[30vw] flex flex-col mx-auto my-8 px-8 py-6 border border-blue-600 rounded shadow-lg"
+            className="max-w-[80vw] sm:max-w-[50vw] md:max-w-[30vw] flex flex-col mx-auto my-8 px-8 py-6 border border-blue-600 rounded shadow-lg"
         >
             <div className="text-2xl text-blue-600 font-semibold mb-4 uppercase">
                 Welcome to PaTyVy

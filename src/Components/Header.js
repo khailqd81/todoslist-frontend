@@ -37,7 +37,7 @@ function Header() {
     }
     return (
         <div className="bg-blue-500">
-            <nav className="py-4 max-w-screen-xl h-full mx-auto flex justify-between items-center text-white ">
+            <nav className="py-4 px-4 md:px-0 max-w-screen-xl h-full mx-auto flex justify-between items-center text-white ">
                 <div className="flex items-center text-xl font-bold">
                     <BiCalendarHeart size={40} />
                     <span className="ml-4">PaTyVy</span>

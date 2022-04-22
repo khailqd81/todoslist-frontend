@@ -38,7 +38,8 @@ function FinishTask() {
                                         :
                                         <span className="ml-auto text-gray-500">
                                             <FaRegStar size={20} />
-                                        </span>}
+                                        </span>
+                                    }
 
                                 </div>
                             </li>

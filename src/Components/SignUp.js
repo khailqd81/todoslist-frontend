@@ -87,7 +87,7 @@ function SignUp({ onClick }) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="md:max-w-[30vw] flex flex-col mx-auto my-8 px-8 py-6 border border-blue-600 rounded shadow-lg"
+            className="max-w-[80vw] sm:max-w-[50vw] md:max-w-[30vw] flex flex-col mx-auto my-8 px-8 py-6 border border-blue-600 rounded shadow-lg"
         >
             <div className="text-2xl text-blue-600 font-semibold mb-4 uppercase">
                 Join PaTyVy

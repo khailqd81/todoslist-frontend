@@ -13,6 +13,7 @@ function TodayTask() {
         handleDeadlineChange,
         handleMarkImportant,
         handleUpdateFinish,
+        handleUpdateDeleted,
         handleUpdateImportant,
         handleUpdateTask,
         handleSave,
@@ -49,6 +50,7 @@ function TodayTask() {
                         handleDeadlineChange={handleDeadlineChange}
                         handleMarkImportant={handleMarkImportant}
                         handleUpdateFinish={handleUpdateFinish}
+                        handleUpdateDeleted={handleUpdateDeleted}
                         handleUpdateImportant={handleUpdateImportant}
                         handleUpdateTask={handleUpdateTask}
                         handleSave={handleSave}
@@ -69,6 +71,7 @@ function TodayTask() {
                         handleDeadlineChange={handleDeadlineChange}
                         handleMarkImportant={handleMarkImportant}
                         handleUpdateFinish={handleUpdateFinish}
+                        handleUpdateDeleted={handleUpdateDeleted}
                         handleUpdateImportant={handleUpdateImportant}
                         handleUpdateTask={handleUpdateTask}
                         handleSave={handleSave}

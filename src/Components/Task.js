@@ -1,8 +1,10 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { BiCalendar } from "react-icons/bi"
-import { BsCalendarCheck, BsClipboardCheck } from "react-icons/bs"
+import { BsClipboardCheck } from "react-icons/bs"
 import { HiOutlineLightBulb } from "react-icons/hi"
 import { AiOutlinePlus } from "react-icons/ai"
 import { FiStar } from "react-icons/fi"
@@ -19,10 +21,11 @@ function Task() {
     const [markImportant, setMarkImportant] = useState(false);
     // const [markFinish, setMarkFinish] = useState(false);
     const [deadline, setDeadline] = useState(new Date());
-
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
         async function getAllTask() {
+            setIsLoading(true);
             const checkLogin = await isLogin();
             if (!checkLogin.login_state) {
                 navigate("/login");
@@ -49,6 +52,7 @@ function Task() {
             } else {
                 setTasks([]);
             }
+            setIsLoading(false);
         }
         getAllTask();
     }, [navigate])
@@ -61,7 +65,7 @@ function Task() {
     }
     const handleDeadlineChange = (date) => {
         console.log("handle dl change: ", date)
-        setDeadline(date)
+        setDeadline(new Date(date));
     }
     const handleMarkImportant = (important) => {
         console.log("handle im change: ", important);
@@ -78,6 +82,24 @@ function Task() {
         }
         await handleUpdateTask(e, fiTask, index);
     }
+    const handleUpdateDeleted = async (e, task, index) => {
+        const delTask = {
+            task_id: task.task_id,
+            content: task.content,
+            deadline: task.deadline,
+            important: task.important,
+            is_finish: task.is_finish,
+            is_deleted: true
+        }
+        e.target.disabled = true;
+        e.target.disabled = false;
+        // e.target.parentNode.parentNode.parentNode.previousElementSibling.style.display = "flex"
+        e.target.parentNode.parentNode.parentNode.style.display = "none"
+        await handleUpdateTask(e, delTask, index);
+        setIsBlock(false);
+        setMarkImportant(false);
+        setDeadline(new Date());
+    }
 
     const handleSave = async (e, task, index) => {
         e.target.parentNode.parentNode.previousElementSibling.style.display = "flex"
@@ -91,6 +113,9 @@ function Task() {
             is_deleted: task.is_deleted
         }
         console.log("save task: ", saveTask)
+        setIsBlock(false);
+        setMarkImportant(false);
+        setDeadline(new Date());
         await handleUpdateTask(e, saveTask, index);
         // const overdueTasks = tasks.filter(task => {
         //     const taskDeadline = new Date(task.deadline).setHours(0, 0, 0, 0);
@@ -166,11 +191,12 @@ function Task() {
         const imTask = {
             task_id: task.task_id,
             content: task.content,
-            deadline: task.deadline,
+            // deadline: task.deadline,
             important: !task.important,
             is_finish: task.is_finish,
             is_deleted: task.is_deleted
         }
+        console.log("im task: ", imTask)
         await handleUpdateTask(e, imTask, index);
     }
 
@@ -186,14 +212,10 @@ function Task() {
                 navigate("/")
                 return
             }
+            console.log("task before send: ", task)
             const response = await axios.patch(`${process.env.REACT_APP_BACKEND_API}/task/update`, {
                 task: {
-                    task_id: task.task_id,
-                    content: task.content,
-                    deadline: task.deadline,
-                    important: task.important,
-                    is_finish: task.is_finish,
-                    is_deleted: task.is_deleted
+                    ...task
                 }
             }, {
                 headers: {
@@ -202,13 +224,13 @@ function Task() {
             })
             if (response.status === 200 && response.data) {
 
-                let modifyTasks = [...filterTasks];
-                modifyTasks[index] = response.data;
-                console.log("filter: ", modifyTasks)
-                setFilterTasks(modifyTasks)
+                // let modifyTasks = [...filterTasks];
+                // modifyTasks[index] = response.data;
+                // console.log("filter: ", modifyTasks)
+                // setFilterTasks(modifyTasks)
 
                 const indexInTasks = tasks.findIndex(task => task.task_id === response.data.task_id);
-                modifyTasks = [...tasks];
+                let modifyTasks = [...tasks];
                 modifyTasks[indexInTasks] = response.data;
                 console.log("tasks: ", modifyTasks)
                 setTasks(modifyTasks)
@@ -238,8 +260,8 @@ function Task() {
     }
 
     return (
-        <div className="max-w-screen-xl flex mx-auto py-8 min-h-[calc(100vh-210px)]">
-            <ul className="basis-1/4 pr-8">
+        <div className="max-w-screen-xl flex flex-wrap mx-auto py-8 min-h-[calc(100vh-210px)]">
+            <ul className="basis-full md:basis-1/4 px-4 md:pl-0 md:pr-8">
                 <li
                     className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
                     onClick={() => {
@@ -248,6 +270,7 @@ function Task() {
                             const today = new Date().setHours(0, 0, 0, 0);
                             return taskDeadline.valueOf() === today.valueOf();
                         })
+                        setIsBlock(false);
                         setFilterTasks(todayTasks);
                         setTitle(`Today ${new Date().toLocaleDateString('vi-vn')}`)
                         navigate("/tasks/today")
@@ -260,6 +283,7 @@ function Task() {
                     className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
                     onClick={() => {
                         const importantTasks = tasks.filter(task => task.important)
+                        setIsBlock(false);
                         setFilterTasks(importantTasks);
                         setTitle("Important tasks");
                         navigate("/tasks/important")
@@ -276,6 +300,7 @@ function Task() {
                             const today = new Date().setHours(0, 0, 0, 0);
                             return taskDeadline.valueOf() > today.valueOf();
                         })
+                        setIsBlock(false);
                         setFilterTasks(upcomingTasks);
                         setTitle("Upcoming tasks");
                         navigate("/tasks/upcoming")
@@ -287,6 +312,7 @@ function Task() {
                 <li
                     className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
                     onClick={() => {
+                        setIsBlock(false);
                         setTitle(`Finished tasks`)
                         navigate("/tasks/finished")
                     }}
@@ -295,25 +321,33 @@ function Task() {
                     Finished
                 </li>
             </ul>
-            <div className='basis-3/4'>
-                <p className="text-blue-500 font-bold text-xl">{title}</p>
-                <Outlet context={{
-                    tasks,
-                    isBlock,
-                    modifyContent,
-                    deadline,
-                    markImportant,
-                    handleBlock,
-                    handleModifyContent,
-                    handleDeadlineChange,
-                    handleMarkImportant,
-                    handleUpdateFinish,
-                    handleUpdateImportant,
-                    handleUpdateTask,
-                    handleSave,
-                    handleCancel
-                }} />
-                {/* <p className="text-gray-500 font-semibold text-lg text-left mt-4 mb-2">Overdue</p>
+            {isLoading
+                ?
+                <div className='basis-full md:basis-3/4 px-2 md:px-0'>
+                    <h1 className="font-bold text-xl mb-4"><Skeleton highlightColor="#CCCCCC" duration={1.5} /></h1>
+                    <Skeleton count={4} highlightColor="#CCCCCC" duration={1.5} />
+                </div>
+                :
+                <div className='basis-full md:basis-3/4 px-2 md:px-0'>
+                    <p className="text-blue-500 font-bold text-xl">{title}</p>
+                    <Outlet context={{
+                        tasks,
+                        isBlock,
+                        modifyContent,
+                        deadline,
+                        markImportant,
+                        handleBlock,
+                        handleModifyContent,
+                        handleDeadlineChange,
+                        handleMarkImportant,
+                        handleUpdateFinish,
+                        handleUpdateDeleted,
+                        handleUpdateImportant,
+                        handleUpdateTask,
+                        handleSave,
+                        handleCancel
+                    }} />
+                    {/* <p className="text-gray-500 font-semibold text-lg text-left mt-4 mb-2">Overdue</p>
                 <TaskView
                     tasks={overdueTasks}
                     isBlock={isBlock}
@@ -343,7 +377,7 @@ function Task() {
                     handleSave={handleSave}
                     handleCancel={handleCancel}
                 /> */}
-                {/* {tasks.length !== 0
+                    {/* {tasks.length !== 0
                     ?
                     <ul className='w-full'>
                         {filterTasks.map((task, index) => {
@@ -447,75 +481,74 @@ function Task() {
                     : <div className="py-4 hidden">Add task to your day</div>
                 } */}
 
-                <div className="group flex px-4 py-4 items-center">
-                    <span
-                        className="group-hover:text-white group-hover:bg-red-500 rounded-full mr-2 text-blue-600 cursor-pointer"
-                        onClick={e => {
-                            handleClickAddTask(e)
-                        }}
-                    >
-                        <AiOutlinePlus size={25} />
-
-                    </span>
-                    <span
-                        className='group-hover:text-red-500 text-gray-600 cursor-pointer flex-1 text-left'
-                        onClick={e => {
-                            handleClickAddTask(e)
-                        }}
-                    >
-                        Add task
-                    </span>
-
-                </div>
-                <div className="hidden flex flex-col items-center text-left border-b px-4 py-4 cursor-pointer outline-none w-full">
-                    <textarea
-                        className="block resize-none overflow-hidden bg-blue-50 text-left outline-none w-full border border-blue-400 rounded px-4 py-2"
-                        value={modifyContent}
-                        onInput={e => {
-                            // set autoheight for textarea
-                            e.target.style.height = "auto"
-                            e.target.style.height = (e.target.scrollHeight) + "px";
-                        }}
-                        onChange={e => {
-                            setModifyContent(e.target.value)
-                        }}
-                    ></textarea>
-                    <div className='flex justify-between mt-2 w-full'>
-
-                        <MyDatePicker deadline={new Date(deadline)} onDeadlineChange={handleDeadlineChange} />
-                        <button
-                            className={
-                                markImportant
-                                    ? 'min-w-[150px] rounded bg-red-500 text-white px-2 py-1'
-                                    : 'min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'}
+                    <div className="group flex px-4 py-4 items-center">
+                        <span
+                            className="group-hover:text-white group-hover:bg-red-500 rounded-full mr-2 text-blue-600 cursor-pointer"
                             onClick={e => {
-
-                                setMarkImportant(!markImportant);
+                                handleClickAddTask(e)
                             }}
                         >
-                            Mark Important
-                        </button>
-                    </div>
-                    <div className='flex self-start mt-2'>
-                        <button
-                            className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4 disabled:bg-blue-300'
-                            onClick={(e) => {
-                                handleAddTask(e);
+                            <AiOutlinePlus size={25} />
+                        </span>
+                        <span
+                            className='group-hover:text-red-500 text-gray-600 cursor-pointer flex-1 text-left'
+                            onClick={e => {
+                                handleClickAddTask(e)
                             }}
                         >
                             Add task
-                        </button>
-                        <button
-                            className='rounded bg-gray-600 hover:bg-gray-500 text-white p-2'
-                            onClick={e => {
-                                handleCancel(e)
-                            }}
-                        >
-                            Cancel
-                        </button>
+                        </span>
+
                     </div>
-                </div>
-            </div>
+                    <div className="hidden flex flex-col items-center text-left border-b px-4 py-4 cursor-pointer outline-none w-full">
+                        <textarea
+                            className="block resize-none overflow-hidden bg-blue-50 text-left outline-none w-full border border-blue-400 rounded px-4 py-2"
+                            value={modifyContent}
+                            onInput={e => {
+                                // set autoheight for textarea
+                                e.target.style.height = "auto"
+                                e.target.style.height = (e.target.scrollHeight) + "px";
+                            }}
+                            onChange={e => {
+                                setModifyContent(e.target.value)
+                            }}
+                        ></textarea>
+                        <div className='flex justify-between mt-2 w-full'>
+
+                            <MyDatePicker deadline={new Date(deadline)} onDeadlineChange={handleDeadlineChange} />
+                            <button
+                                className={
+                                    markImportant
+                                        ? 'min-w-[150px] rounded bg-red-500 text-white px-2 py-1'
+                                        : 'min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'}
+                                onClick={e => {
+
+                                    setMarkImportant(!markImportant);
+                                }}
+                            >
+                                Mark Important
+                            </button>
+                        </div>
+                        <div className='flex self-start mt-2'>
+                            <button
+                                className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4 disabled:bg-blue-300'
+                                onClick={(e) => {
+                                    handleAddTask(e);
+                                }}
+                            >
+                                Add task
+                            </button>
+                            <button
+                                className='rounded bg-gray-600 hover:bg-gray-500 text-white p-2'
+                                onClick={e => {
+                                    handleCancel(e)
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>}
         </div >
     )
 }

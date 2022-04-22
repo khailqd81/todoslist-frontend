@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaRegStar, FaStar } from "react-icons/fa"
 import { BsCheck } from "react-icons/bs"
+import { FaRegTrashAlt } from "react-icons/fa"
 import MyDatePicker from "./MyDatePicker";
-function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, handleBlock, handleModifyContent, handleDeadlineChange, handleMarkImportant, handleUpdateFinish, handleUpdateImportant, handleUpdateTask, handleSave, handleCancel }) {
+function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, handleBlock, handleModifyContent, handleDeadlineChange, handleMarkImportant, handleUpdateFinish, handleUpdateDeleted, handleUpdateImportant, handleSave, handleCancel }) {
+    const [clicked, setClicked] = useState(false);
     return (
         <React.Fragment>
             {tasks.length !== 0
@@ -28,7 +30,6 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                             if (isBlock) {
                                                 return;
                                             }
-                                            console.log("textarea height: ", e.target.offsetHeight)
                                             e.target.parentNode.nextElementSibling.firstChild.style.height = e.target.offsetHeight + 16 + "px"
                                             e.target.parentNode.style.display = "none"
                                             e.target.parentNode.nextElementSibling.style.display = "block"
@@ -43,24 +44,44 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                     </div>
                                     {task.important
                                         ?
-                                        <span
+                                        <button
                                             className="ml-auto text-amber-400 hover:text-amber-200 cursor-pointer"
-                                            onClick={(e) => {
-                                                handleUpdateImportant(e, task, index);
-                                            }}>
+                                            onClick={async (e) => {
+                                                console.log(e.target.parentNode.disabled)
+                                                console.log(e.detail)
+
+                                                if (e.target.parentNode.disabled || e.detail > 1) {
+                                                    return;
+                                                }
+                                                e.target.parentNode.disabled = true;
+                                                await handleUpdateImportant(e, task, index);
+                                                e.target.parentNode.disabled = false;
+                                            }}
+                                            disabled={false}
+                                        >
                                             <FaStar size={20} />
-                                        </span>
+                                        </button>
                                         :
-                                        <span
+                                        <button
                                             className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer"
-                                            onClick={(e) => {
-                                                handleUpdateImportant(e, task, index);
-                                            }}>
+                                            onClick={async (e) => {
+                                                console.log(e.target.parentNode.disabled)
+                                                console.log(e.detail)
+                                            
+                                                if (e.target.parentNode.disabled || e.detail > 1) {
+                                                    return;
+                                                }
+                                                e.target.parentNode.disabled = true;
+                                                await handleUpdateImportant(e, task, index);
+                                                e.target.parentNode.disabled = false;
+                                            }}
+                                            disabled={false}
+                                        >
                                             <FaRegStar size={20} />
-                                        </span>}
+                                        </button>}
 
                                 </div>
-                                <div className="hidden flex flex-col items-center text-left border-b px-4 py-4 cursor-pointer outline-none w-full">
+                                <div className="hidden flex flex-col items-center text-left border-b px-4 py-4 outline-none w-full">
                                     <textarea
                                         className="block resize-none overflow-hidden bg-blue-50 text-left outline-none w-full border border-blue-400 rounded px-4 py-2"
                                         value={modifyContent}
@@ -84,8 +105,8 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                         <MyDatePicker deadline={new Date(deadline)} onDeadlineChange={handleDeadlineChange} />
                                         <button
                                             className={markImportant
-                                                ? 'min-w-[150px] rounded bg-red-500 text-white px-2 py-1'
-                                                : 'min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1'}
+                                                ? 'min-w-[150px] rounded bg-red-500 text-white px-2 py-1 cursor-pointer'
+                                                : 'min-w-[150px] rounded bg-white hover:bg-gray-100 text-red-500 border border-red-500 px-2 py-1 cursor-pointer'}
                                             onClick={() => {
                                                 handleMarkImportant(!task.important);
                                                 // handleModifyContent(task.content);
@@ -98,7 +119,7 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                     </div>
                                     <div className='flex self-start mt-2'>
                                         <button
-                                            className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4'
+                                            className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4 cursor-pointer'
                                             onClick={(e) => {
                                                 handleSave(e, task, index);
                                             }}
@@ -106,12 +127,20 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                             Save
                                         </button>
                                         <button
-                                            className='rounded bg-gray-600 hover:bg-gray-500 text-white p-2'
+                                            className='rounded bg-gray-600 hover:bg-gray-500 text-white p-2 cursor-pointer'
                                             onClick={e => {
                                                 handleCancel(e)
                                             }}
                                         >
                                             Cancel
+                                        </button>
+                                        <button
+                                            className='ml-auto text-zinc-400 hover:text-zinc-500 p-2 cursor-pointer'
+                                            onClick={e => {
+                                                handleUpdateDeleted(e, task, index)
+                                            }}
+                                        >
+                                            <FaRegTrashAlt size={20} />
                                         </button>
                                     </div>
                                 </div>
