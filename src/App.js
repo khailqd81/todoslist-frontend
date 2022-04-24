@@ -7,10 +7,9 @@ import { useEffect } from 'react';
 import { useStore } from "./store"
 import { actions } from './store';
 import isLogin from './utils/isLogin';
-import {useNavigate} from "react-router-dom"
 function App() {
   const [state, dispatch] = useStore();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   useEffect(() => {
     async function checkIsLogin() {
       const checkLogin = await isLogin();
@@ -19,10 +18,10 @@ function App() {
       } else {
         dispatch(actions.setLogin(true));
       }
+      console.log("login state: ", state.isLogin);
     }
     checkIsLogin();
-  }, [dispatch, navigate])
-  console.log("login state: ", state.isLogin);
+  }, [dispatch, state.isLogin])
   return (
     <div className="App bg-blue-50">
       <Header />

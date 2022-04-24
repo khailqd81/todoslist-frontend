@@ -36,6 +36,12 @@ function SignUp({ onClick }) {
                     password: "Password can not be empty."
                 }))
             }
+            if (e.target.id === "fullname") {
+                setMessages(prevState => ({
+                    ...prevState,
+                    fullname: "Fullname can not be empty."
+                }))
+            }
         }
     }
 
@@ -127,7 +133,7 @@ function SignUp({ onClick }) {
                     onBlur={handleBlur}
                     onFocus={handleFocus}
                 />
-                {messages.username?.length > 0 && <p className="mt-1 text-red-400">{messages.username}</p>}
+                {messages.fullname?.length > 0 && <p className="mt-1 text-red-400">{messages.fullname}</p>}
             </div>
             {
                 message.length !== 0 ? <p className="mt-8 w-full text-red-700 text-center py-3 bg-red-100 border-red-700 border rounded-md">{message}</p> : <p></p>

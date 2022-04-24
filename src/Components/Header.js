@@ -12,7 +12,6 @@ function Header() {
     useEffect(() => {
         async function getAccountInfo() {
             const checkLogin = await isLogin();
-            console.log("header: ", checkLogin)
             if (checkLogin.login_state) {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_API}/account/info`, {
                     headers: {

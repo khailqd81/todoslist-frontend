@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom"
 import React from "react";
-import { FaRegStar, FaStar } from "react-icons/fa"
+import { FaRegTrashAlt } from "react-icons/fa"
 import { BsCheck } from "react-icons/bs"
 function FinishTask() {
     const {
-        tasks
+        tasks,
+        handleUpdateDeleted
     } = useOutletContext();
     const [finishTasks, setFinishTasks] = useState([]);
     useEffect(() => {
-        const newFinishTasks = tasks.filter(task => task.is_finish === true)
-        console.log(newFinishTasks);
+        const newFinishTasks = tasks.filter(task => task.is_finish === true && task.is_deleted === false)
         setFinishTasks(newFinishTasks);
     }, [tasks])
     return (
@@ -18,7 +18,7 @@ function FinishTask() {
             {finishTasks.length !== 0
                 ?
                 <ul className='w-full'>
-                    {finishTasks.map((task) => {
+                    {finishTasks.map((task, index) => {
                         return (
                             <li
                                 key={task.task_id}
@@ -30,17 +30,14 @@ function FinishTask() {
                                     <div className=" mr-2 grow line-through" >
                                         {task.content}
                                     </div>
-                                    {task.important
-                                        ?
-                                        <span className="ml-auto text-amber-400">
-                                            <FaStar size={20} />
-                                        </span>
-                                        :
-                                        <span className="ml-auto text-gray-500">
-                                            <FaRegStar size={20} />
-                                        </span>
-                                    }
-
+                                    <button
+                                        className='ml-auto text-zinc-400 hover:text-zinc-500 p-2 cursor-pointer'
+                                        onClick={e => {
+                                            handleUpdateDeleted(e, task, index)
+                                        }}
+                                    >
+                                        <FaRegTrashAlt size={20} />
+                                    </button>
                                 </div>
                             </li>
                         )

@@ -7,7 +7,7 @@ import { Routes, Route, BrowserRouter } from "react-router-dom";
 import MyProvider from "./store/Provider"
 import SignUp from './Components/SignUp';
 import Login from './Components/Login';
-import Task from './Components/Task';
+import TaskContainer from './Components/TaskContainer';
 import TodayTask from './Components/TodayTask';
 import ImportantTask from './Components/ImportantTask';
 import UpcomingTask from './Components/UpcomingTask';
@@ -21,16 +21,18 @@ root.render(
           <Route exact path='/' element={<App />}>
             <Route path="signup" element={<SignUp />} />
             <Route path="login" element={<Login />} />
-            <Route path="tasks" element={<Task />}>
+            <Route path="tasks" element={<TaskContainer />}>
               <Route path='today' element={<TodayTask />} />
               <Route path='important' element={<ImportantTask />} />
               <Route path='upcoming' element={<UpcomingTask />} />
               <Route path='finished' element={<FinishTask />} />
               <Route index element={<TodayTask />} />
             </Route>
-            <Route path="*" element={<Task />} >
+            <Route path="*" element={<TaskContainer />} >
               <Route path=':today' element={<TodayTask />} />
               <Route path=':important' element={<ImportantTask />} />
+              <Route path='upcoming' element={<UpcomingTask />} />
+              <Route path='finished' element={<FinishTask />} />
               <Route index element={<TodayTask />} />
             </Route>
           </Route>

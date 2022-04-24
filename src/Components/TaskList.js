@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { FaRegStar, FaStar } from "react-icons/fa"
 import { BsCheck } from "react-icons/bs"
 import { FaRegTrashAlt } from "react-icons/fa"
 import MyDatePicker from "./MyDatePicker";
 function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, handleBlock, handleModifyContent, handleDeadlineChange, handleMarkImportant, handleUpdateFinish, handleUpdateDeleted, handleUpdateImportant, handleSave, handleCancel }) {
-    const [clicked, setClicked] = useState(false);
     return (
         <React.Fragment>
             {tasks.length !== 0
@@ -19,7 +18,7 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                     <span
                                         className="border border-gray-600 rounded-full mr-2 text-white hover:text-gray-600"
                                         onClick={(e) => {
-                                            handleUpdateFinish(e, task, index);
+                                            handleUpdateFinish(e, task,);
                                         }}
                                     >
                                         <BsCheck />
@@ -54,7 +53,7 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                                     return;
                                                 }
                                                 e.target.parentNode.disabled = true;
-                                                await handleUpdateImportant(e, task, index);
+                                                await handleUpdateImportant(e, task);
                                                 e.target.parentNode.disabled = false;
                                             }}
                                             disabled={false}
@@ -72,7 +71,7 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                                     return;
                                                 }
                                                 e.target.parentNode.disabled = true;
-                                                await handleUpdateImportant(e, task, index);
+                                                await handleUpdateImportant(e, task);
                                                 e.target.parentNode.disabled = false;
                                             }}
                                             disabled={false}
@@ -121,7 +120,7 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                         <button
                                             className='rounded bg-blue-600 hover:bg-blue-500 text-white p-2 mr-4 cursor-pointer'
                                             onClick={(e) => {
-                                                handleSave(e, task, index);
+                                                handleSave(e, task);
                                             }}
                                         >
                                             Save
@@ -137,7 +136,7 @@ function TaskList({ tasks, isBlock, modifyContent, deadline, markImportant, hand
                                         <button
                                             className='ml-auto text-zinc-400 hover:text-zinc-500 p-2 cursor-pointer'
                                             onClick={e => {
-                                                handleUpdateDeleted(e, task, index)
+                                                handleUpdateDeleted(e, task)
                                             }}
                                         >
                                             <FaRegTrashAlt size={20} />
