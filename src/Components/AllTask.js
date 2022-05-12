@@ -81,6 +81,7 @@ function AllTask() {
             setUpcomingTasksByDays([]);
         }
     }, [tasks])
+    console.log(upcomingTasksByDays);
     return (
         <div>
             {overdueTasks.length !== 0 &&
