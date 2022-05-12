@@ -47,18 +47,19 @@ function AllTask() {
         let arrTasks = [...newUpcomingTasks];
         if (arrTasks.length > 0) {
             // Lọc ra ngày của các task
-            let arrDays = [...new Set(arrTasks.map(arrTask => arrTask.deadline))];
-            // for (let i = 0; i < arrTasks.length; i++) {
-            //     let taskDeadline = new Date(arrTasks[i].deadline).setHours(0, 0, 0, 0);
-            //     arrDays.push(arrTasks[i].deadline);
-            //     for (let j = i + 1; j < arrTasks.length; j++) {
-            //         let compareTaskDeadline = new Date(arrTasks[j].deadline).setHours(0, 0, 0, 0);
-            //         if (taskDeadline.valueOf() === compareTaskDeadline.valueOf()) {
-            //             arrTasks.splice(j, 1);
-            //             j--;
-            //         }
-            //     }
-            // }
+            let arrDays = [];
+
+            for (let i = 0; i < arrTasks.length; i++) {
+                let taskDeadline = new Date(arrTasks[i].deadline).setHours(0, 0, 0, 0);
+                arrDays.push(arrTasks[i].deadline);
+                for (let j = i + 1; j < arrTasks.length; j++) {
+                    let compareTaskDeadline = new Date(arrTasks[j].deadline).setHours(0, 0, 0, 0);
+                    if (taskDeadline.valueOf() === compareTaskDeadline.valueOf()) {
+                        arrTasks.splice(j, 1);
+                        j--;
+                    }
+                }
+            }
             arrDays.sort(function (a, b) {
                 return (new Date(a)).getTime() - (new Date(b)).getTime()
             })
@@ -76,12 +77,12 @@ function AllTask() {
                 }
                 arrTasksByDays.push(tasksByDay);
             }
+            console.log("arrTasksByDays: ", arrTasksByDays)
             setUpcomingTasksByDays(arrTasksByDays);
         } else {
             setUpcomingTasksByDays([]);
         }
     }, [tasks])
-    console.log(upcomingTasksByDays);
     return (
         <div>
             {overdueTasks.length !== 0 &&
@@ -132,8 +133,8 @@ function AllTask() {
                         <p className="text-gray-500 font-semibold text-lg text-left mt-4 mb-2">Upcoming</p>
                         {upcomingTasksByDays.map(upcomingTasksByDay => {
                             return (
-                                <React.Fragment>
-                                    <div key={upcomingTasksByDay[0].deadline}>
+                                <React.Fragment key={upcomingTasksByDay[0].deadline}>
+                                    <div>
                                         <p className="text-gray-500 font-semibold text-lg text-left mt-6 mb-1">{new Date(upcomingTasksByDay[0].deadline).toLocaleDateString("vi-vn")}</p>
                                         <TaskList
                                             tasks={upcomingTasksByDay}

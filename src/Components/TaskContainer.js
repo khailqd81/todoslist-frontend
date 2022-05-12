@@ -16,7 +16,7 @@ import isLogin from "../utils/isLogin"
 
 function TaskContainer() {
     const [tasks, setTasks] = useState([]);
-    const [title, setTitle] = useState(`Today ${new Date().toLocaleDateString('vi-vn')}`);
+    const [title, setTitle] = useState(`All tasks`);
     // chỉ cho phép một ô nhập liệu tại 1 thời điểm
     const [isBlock, setIsBlock] = useState(false);
     // lưu nội dung của textarea
@@ -43,6 +43,9 @@ function TaskContainer() {
             })
             if (response.status === 200) {
                 setTasks(response.data);
+                if (window.location.pathname === "/tasks") {
+                    setTitle(`All tasks (${response.data.length})`)
+                }
             } else {
                 setTasks([]);
             }
@@ -235,13 +238,13 @@ function TaskContainer() {
 
                 >
                     <NavLink
+                        to="/tasks/all"
                         className={({ isActive }) => isActive ? 'flex items-center py-1 px-2 bg-gray-200 cursor-pointer delay-75 rounded' : 'flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'}
                         onClick={() => {
                             setIsBlock(false);
-                            setTitle(`All task ${new Date().toLocaleDateString('vi-vn')}`)
+                            setTitle(`All tasks (${tasks.length})`)
                             //navigate("/tasks")
                         }}
-                        to="/tasks/all"
                     >
                         <BsListCheck size={20} className="text-slate-400 mr-4" />
                         All tasks
@@ -259,7 +262,6 @@ function TaskContainer() {
                         onClick={() => {
                             setIsBlock(false);
                             setTitle(`Today ${new Date().toLocaleDateString('vi-vn')}`)
-                            console.log("onclick run")
                             //navigate("/tasks/today")
                         }}
                     >
