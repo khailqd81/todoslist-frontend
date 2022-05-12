@@ -12,6 +12,7 @@ import TodayTask from './Components/TodayTask';
 import ImportantTask from './Components/ImportantTask';
 import UpcomingTask from './Components/UpcomingTask';
 import FinishTask from './Components/FinishTask';
+import AllTask from './Components/AllTask';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -26,14 +27,15 @@ root.render(
               <Route path='important' element={<ImportantTask />} />
               <Route path='upcoming' element={<UpcomingTask />} />
               <Route path='finished' element={<FinishTask />} />
-              <Route index element={<TodayTask />} />
+              <Route path='all' element={<AllTask />} />
+              <Route index element={<AllTask />} />
             </Route>
             <Route path="*" element={<TaskContainer />} >
               <Route path=':today' element={<TodayTask />} />
               <Route path=':important' element={<ImportantTask />} />
               <Route path='upcoming' element={<UpcomingTask />} />
               <Route path='finished' element={<FinishTask />} />
-              <Route index element={<TodayTask />} />
+              <Route index element={<AllTask />} />
             </Route>
           </Route>
         </Routes>

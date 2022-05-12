@@ -44,6 +44,9 @@ function ImportantTask() {
                     }
                 }
             }
+            arrDays.sort(function (a, b) {
+                return (new Date(a)).getTime() - (new Date(b)).getTime()
+            })
             // Gom nhóm các task theo ngày
             arrTasks = [...newUpcomingTasks];
             for (let i = 0; i < arrDays.length; i++) {
@@ -63,8 +66,6 @@ function ImportantTask() {
             setUpcomingTasksByDays([]);
         }
     }, [tasks])
-
-
 
     return (
         <React.Fragment>

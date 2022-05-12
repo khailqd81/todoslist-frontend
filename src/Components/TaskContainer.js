@@ -1,16 +1,16 @@
-import axios from "axios"
 import { useEffect, useState } from "react"
-import { Outlet, useNavigate } from "react-router-dom"
+import { NavLink, Outlet, useNavigate } from "react-router-dom"
+import axios from "axios"
 // loading
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 // icons
 import { BiCalendar } from "react-icons/bi"
-import { BsClipboardCheck } from "react-icons/bs"
+import { BsClipboardCheck, BsListCheck } from "react-icons/bs"
 import { HiOutlineLightBulb } from "react-icons/hi"
 import { AiOutlinePlus } from "react-icons/ai"
 import { FiStar } from "react-icons/fi"
-// mine
+// custom
 import MyDatePicker from "./MyDatePicker"
 import isLogin from "../utils/isLogin"
 
@@ -78,7 +78,6 @@ function TaskContainer() {
                 navigate("/")
                 return
             }
-            console.log("task before send: ", task)
             const response = await axios.patch(`${process.env.REACT_APP_BACKEND_API}/task/update`, {
                 task: {
                     ...task
@@ -89,16 +88,9 @@ function TaskContainer() {
                 }
             })
             if (response.status === 200 && response.data) {
-
-                // let modifyTasks = [...filterTasks];
-                // modifyTasks[index] = response.data;
-                // console.log("filter: ", modifyTasks)
-                // setFilterTasks(modifyTasks)
-
                 const indexInTasks = tasks.findIndex(task => task.task_id === response.data.task_id);
                 let modifyTasks = [...tasks];
                 modifyTasks[indexInTasks] = response.data;
-                console.log("tasks: ", modifyTasks)
                 setTasks(modifyTasks)
             }
             setIsBlock(false)
@@ -116,12 +108,13 @@ function TaskContainer() {
             task_id: task.task_id,
             content: task.content,
             deadline: task.deadline,
-            important: false,
+            important: task.important,
             is_finish: true,
             is_deleted: task.is_deleted
         }
         await handleUpdateTask(e, fiTask);
     }
+
     const handleUpdateDeleted = async (e, task,) => {
         const delTask = {
             task_id: task.task_id,
@@ -151,7 +144,6 @@ function TaskContainer() {
             is_finish: task.is_finish,
             is_deleted: task.is_deleted
         }
-        console.log("save task: ", saveTask)
         setIsBlock(false);
         setMarkImportant(false);
         setDeadline(new Date());
@@ -190,15 +182,10 @@ function TaskContainer() {
                 }
             })
             if (response.status === 200 && response.data) {
-                console.log(response.data)
-                // const newTask = response.data;
                 setTasks(prev => {
                     return [...prev, response.data];
                 })
-                // if (new Date(newTask.deadline).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0))
-                //     setFilterTasks(prev => {
-                //         return [...prev, response.data];
-                //     })
+
             }
             setIsBlock(false)
             setModifyContent("");
@@ -226,8 +213,6 @@ function TaskContainer() {
         await handleUpdateTask(e, imTask, index);
     }
 
-
-
     const handleClickAddTask = (e) => {
         if (isBlock) {
             return;
@@ -246,59 +231,90 @@ function TaskContainer() {
         <div className="max-w-screen-xl flex flex-wrap mx-auto py-8 min-h-[calc(100vh-210px)]">
             <ul className="basis-full md:basis-1/4 px-4 md:pl-0 md:pr-8">
                 <li
-                    className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
-                    onClick={() => {
-                        // const todayTasks = tasks.filter(task => {
-                        //     const taskDeadline = new Date(task.deadline).setHours(0, 0, 0, 0);
-                        //     const today = new Date().setHours(0, 0, 0, 0);
-                        //     return taskDeadline.valueOf() === today.valueOf();
-                        // })
-                        setIsBlock(false);
-                        setTitle(`Today ${new Date().toLocaleDateString('vi-vn')}`)
-                        navigate("/tasks/today")
-                    }}
+                //className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
+
                 >
-                    <HiOutlineLightBulb size={20} className="text-yellow-400 mr-4" />
-                    Today
+                    <NavLink
+                        className={({ isActive }) => isActive ? 'flex items-center py-1 px-2 bg-gray-200 cursor-pointer delay-75 rounded' : 'flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'}
+                        onClick={() => {
+                            setIsBlock(false);
+                            setTitle(`All task ${new Date().toLocaleDateString('vi-vn')}`)
+                            //navigate("/tasks")
+                        }}
+                        to="/tasks/all"
+                    >
+                        <BsListCheck size={20} className="text-slate-400 mr-4" />
+                        All tasks
+                    </NavLink>
+
+
                 </li>
                 <li
-                    className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
-                    onClick={() => {
-                        // const importantTasks = tasks.filter(task => task.important)
-                        setIsBlock(false);
-                        setTitle("Important tasks");
-                        navigate("/tasks/important")
-                    }}
+                //className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
+
                 >
-                    <FiStar size={20} className="text-yellow-500 mr-4" />
-                    Important
+                    <NavLink
+                        to="/tasks/today"
+                        className={({ isActive }) => isActive ? 'flex items-center py-1 px-2 bg-gray-200 cursor-pointer delay-75 rounded' : 'flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'}
+                        onClick={() => {
+                            setIsBlock(false);
+                            setTitle(`Today ${new Date().toLocaleDateString('vi-vn')}`)
+                            console.log("onclick run")
+                            //navigate("/tasks/today")
+                        }}
+                    >
+                        <HiOutlineLightBulb size={20} className="text-yellow-400 mr-4" />
+                        Today
+                    </NavLink>
+
                 </li>
-                <li
-                    className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
-                    onClick={() => {
-                        // const upcomingTasks = tasks.filter(task => {
-                        //     const taskDeadline = new Date(task.deadline).setHours(0, 0, 0, 0);
-                        //     const today = new Date().setHours(0, 0, 0, 0);
-                        //     return taskDeadline.valueOf() > today.valueOf();
-                        // })
-                        setIsBlock(false);
-                        setTitle("Upcoming tasks");
-                        navigate("/tasks/upcoming")
-                    }}
-                >
-                    <BiCalendar size={20} className="text-green-500 mr-4" />
-                    Upcoming
+                <li>
+                    <NavLink
+                        to="/tasks/important"
+                        className={({ isActive }) => isActive ? 'flex items-center py-1 px-2 bg-gray-200 cursor-pointer delay-75 rounded' : 'flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'}
+                        onClick={() => {
+                            // const importantTasks = tasks.filter(task => task.important)
+                            setIsBlock(false);
+                            setTitle("Important tasks");
+                            //navigate("/tasks/important")
+                        }}
+                    >
+                        <FiStar size={20} className="text-yellow-500 mr-4" />
+                        Important
+                    </NavLink>
+
                 </li>
-                <li
-                    className='flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'
-                    onClick={() => {
-                        setIsBlock(false);
-                        setTitle(`Finished tasks`)
-                        navigate("/tasks/finished")
-                    }}
-                >
-                    <BsClipboardCheck size={20} className="text-blue-600 mr-4" />
-                    Finished
+                <li>
+                    <NavLink
+                        to="/tasks/upcoming"
+                        className={({ isActive }) => isActive ? 'flex items-center py-1 px-2 bg-gray-200 cursor-pointer delay-75 rounded' : 'flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'}
+                        onClick={() => {
+                            // const importantTasks = tasks.filter(task => task.important)
+                            setIsBlock(false);
+                            setTitle("Upcoming tasks");
+                            //navigate("/tasks/upcoming")
+                        }}
+                    >
+                        <BiCalendar size={20} className="text-green-500 mr-4" />
+                        Upcoming
+                    </NavLink>
+
+                </li>
+                <li>
+                    <NavLink
+                        to="/tasks/finished"
+                        className={({ isActive }) => isActive ? 'flex items-center py-1 px-2 bg-gray-200 cursor-pointer delay-75 rounded' : 'flex items-center py-1 px-2 hover:bg-gray-200 cursor-pointer delay-75 rounded'}
+                        onClick={() => {
+                            // const importantTasks = tasks.filter(task => task.important)
+                            setIsBlock(false);
+                            setTitle(`Finished tasks`)
+                            //navigate("/tasks/finished")
+                        }}
+                    >
+                        <BsClipboardCheck size={20} className="text-blue-600 mr-4" />
+                        Finished
+                    </NavLink>
+
                 </li>
             </ul>
             {isLoading
