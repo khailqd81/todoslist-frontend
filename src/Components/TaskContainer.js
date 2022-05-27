@@ -347,21 +347,22 @@ function TaskContainer() {
                     }} />
                     <div className="group flex px-4 py-4 items-center">
                         <span
-                            className="group-hover:text-white group-hover:bg-red-500 rounded-full mr-2 text-blue-600 cursor-pointer"
+                            className="hover:text-white hover:bg-red-500 rounded-full text-xl font-semibold p-2 mr-2 text-blue-600 cursor-pointer"
                             onClick={e => {
-                                handleClickAddTask(e)
-                            }}
+                                    handleClickAddTask(e)
+                                }}
                         >
-                            <AiOutlinePlus size={25} />
+                            {/* <AiOutlinePlus size={25} /> */}
+                            +  Add task
                         </span>
-                        <span
+                        {/* <span
                             className='group-hover:text-red-500 text-gray-600 cursor-pointer flex-1 text-left'
                             onClick={e => {
                                 handleClickAddTask(e)
                             }}
                         >
                             Add task
-                        </span>
+                        </span> */}
 
                     </div>
                     <div className="hidden flex flex-col items-center text-left border-b px-4 py-4 cursor-pointer outline-none w-full">
